@@ -121,7 +121,6 @@ function generateModuleDeclaration(content, failed, success) {
   const module = resolveModulePath(resolvedContexts, resourcePath, outputDirectory);
 
   if (excludeModules.includes(module.path)) {
-    console.log(`Skipped excluded CSS module ${module}`);
     success();
     return;
   }
@@ -129,8 +128,6 @@ function generateModuleDeclaration(content, failed, success) {
   if (!module) {
     throw new Error(`Cannot determine TypeScript module path for ${resourcePath}\nPlease configure the contexts option to match your .tsconfig`);
   }
-
-  console.log(`Outputting declaration for ${module.path} to ${module.output}`);
 
   const { read, write } = makeFileHandlers(module.output);
 
@@ -167,7 +164,6 @@ function generateModuleDeclaration(content, failed, success) {
   } else {
     read((_, fileContents) => {
       if (cssModuleDefinition !== fileContents) {
-        console.log(`${cssModuleDefinition}\nvs.\n${fileContents}`);
         write(cssModuleDefinition, err => {
           if (err) {
             failed(err);
@@ -176,7 +172,6 @@ function generateModuleDeclaration(content, failed, success) {
           }
         });
       } else {
-        console.log(`CSS module declaration unchanged for ${module.path}`);
         success();
       }
     });
@@ -188,7 +183,6 @@ module.exports = function(content, ...rest) {
 
   try {
     if (fs.existsSync(`./${path.basename(this.resourcePath)}.d.ts`)) {
-      console.log(`CSS module definition already exists for ${this.resourcePath}`);
       success();
     } else {
       generateModuleDeclaration.call(this, content, failed, success);
